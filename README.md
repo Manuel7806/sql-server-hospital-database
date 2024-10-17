@@ -1,4 +1,13 @@
-# SQL Server Hospital Database
+# SQL Server Hospital Database <!-- omit from toc -->
+
+## Table of Contents <!-- omit from toc -->
+
+- [About](#about)
+- [Install and Use the Database](#install-and-use-the-database)
+  - [Prerequisite](#prerequisite)
+  - [Cloning the Repo](#cloning-the-repo)
+- [Run Queries](#run-queries)
+- [Sample Queries](#sample-queries)
 
 ## About
 
@@ -46,3 +55,114 @@ the script and it will create the database objects and insert the data into the 
 To run queries against the database, in the object explorer pane right click on the databases folder and select `refresh`,
 you should now see the newly created hospital_db database. You can right click on the hospital_db database and select
 `New Query`, a new query window will open in the middle of the window, you can write and run your queries from there.
+
+
+## Sample Queries
+
+List all patients.
+
+```SQL
+SELECT * FROM patients
+```
+
+![list all patients](images/select-all-patients.png)
+
+---
+
+Find patients with a certain allergen.
+
+```SQL
+SELECT
+    p.first_name,
+    p.last_name,
+    a.allergy_name,
+    pa.reaction
+FROM
+    patients AS p
+JOIN
+    patient_allergies AS pa ON p.patient_id = pa.patient_id
+JOIN
+    allergies AS a ON pa.allergy_id = a.allergy_id
+WHERE
+    a.allergy_name = 'Protonix';
+```
+
+![find patients with specific allergy](images/find-patients-with-specific-allergy.png)
+
+---
+
+Get the number of patients per gender
+
+```SQL
+SELECT
+    gender,
+    COUNT(*) AS patient_count
+FROM
+    patients
+GROUP BY
+    gender;
+```
+
+![patient gender count](images/patient-gender-count.png)
+
+---
+
+List doctors and their specialty
+
+```SQL
+SELECT
+    d.first_name,
+    d.last_name,
+    s.specialty_name
+FROM
+    doctors AS d
+JOIN
+    specialty AS s ON d.specialty_id = s.specialty_id;
+```
+
+![list doctors and their specialty](images/doctor-and-specialty.png)
+
+---
+
+Get the number of patients admitted per doctor
+
+```SQL
+SELECT
+    d.first_name,
+    d.last_name,
+    COUNT(*) AS patient_count
+FROM
+    doctors AS d
+JOIN
+    admissions AS a ON d.doctor_id = a.doctor_id
+GROUP BY
+    d.first_name, d.last_name;
+```
+
+![patients admitted per doctor](images/patients-admitted-per-doctor.png)
+
+---
+
+Get patient names that have been admitted more than once
+
+```SQL
+SELECT
+    p.first_name,
+    p.last_name
+FROM
+    patients AS p
+WHERE
+    p.patient_id
+IN (
+    SELECT
+        patient_id
+    FROM
+        admissions
+    GROUP BY
+        patient_id
+    HAVING
+        COUNT(*) > 1
+)
+```
+
+![patients admitted more than once](images/patients-admitted-more-than-once.png)
